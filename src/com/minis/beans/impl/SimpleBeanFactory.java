@@ -1,37 +1,91 @@
 package com.minis.beans.impl;
 
 import com.minis.beans.BeanDefinition;
+import com.minis.beans.BeanDefinitionRegistry;
 import com.minis.beans.BeanFactory;
 import com.minis.exceptions.BeansException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class SimpleBeanFactory implements BeanFactory {
-    private final Map<String, BeanDefinition> beanDefinitions = new HashMap<>();
-    private final Map<String, Object> singletons = new HashMap<>();
+public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory, BeanDefinitionRegistry {
+    private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
 
     @Override
     public Object getBean(String beanName) throws BeansException {
-        if (!singletons.containsKey(beanName)) {
+        Object bean = getSingleton(beanName);
+        if (bean == null) {
             if (!beanDefinitions.containsKey(beanName)) {
                 throw new BeansException("BeanDefinition not exist!");
             }
             BeanDefinition beanDefinition = beanDefinitions.get(beanName);
-            try {
-                Object instance = Class.forName(beanDefinition.getClassName()).getDeclaredConstructor().newInstance();
-                singletons.put(beanDefinition.getId(), instance);
-            } catch (Exception e) {
-                e.printStackTrace();
+            synchronized (beanDefinition) {
+                bean = getSingleton(beanName);
+                if (bean == null) {
+                    try {
+                        bean = Class.forName(beanDefinition.getClassName()).getDeclaredConstructor().newInstance();
+                        registerSingleton(beanDefinition.getId(), bean);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
-        return singletons.get(beanName);
+        return bean;
     }
 
     @Override
-    public void registerBeanDefinition(BeanDefinition beanDefinition) {
-        beanDefinitions.put(beanDefinition.getId(), beanDefinition);
+    public void registerBean(String beanName, Object obj) {
+        registerSingleton(beanName, obj);
+    }
+
+    @Override
+    public Boolean containsBean(String beanName) {
+        return contatinsSingleton(beanName) || beanDefinitions.containsKey(beanName);
+    }
+
+    @Override
+    public boolean isSingleton(String name) {
+        return beanDefinitions.get(name).isSingleton();
+    }
+
+    @Override
+    public boolean isPrototype(String name) {
+        return beanDefinitions.get(name).isPrototype();
+    }
+
+    // TODO：争议
+    @Override
+    public Class<?> getType(String name) {
+        return (Class<?>) beanDefinitions.get(name).getBeanClass();
+    }
+
+    @Override
+    public void registerBeanDefinition(String name, BeanDefinition bd) {
+        beanDefinitions.put(name, bd);
+        if (!bd.isLazyInit()) {
+            try {
+                getBean(name);
+            } catch (BeansException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @Override
+    public void removeBeanDefinition(String name) {
+        beanDefinitions.remove(name);
+        removeSingleton(name);
+    }
+
+    @Override
+    public BeanDefinition getBeanDefinition(String name) {
+        return beanDefinitions.get(name);
+    }
+
+    @Override
+    public boolean containsBeanDefinition(String name) {
+        return beanDefinitions.containsKey(name);
     }
 }

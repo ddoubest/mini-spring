@@ -1,13 +1,14 @@
 package com.minis.beans;
 
-import com.minis.beans.impl.ClassPathXmlResource;
+
+import com.minis.beans.impl.SimpleBeanFactory;
 import org.dom4j.Element;
 
 public class XmlBeanDefinitionReader {
-    private final BeanFactory beanFactory;
+    private final SimpleBeanFactory simpleBeanFactory;
 
-    public XmlBeanDefinitionReader(BeanFactory beanFactory) {
-        this.beanFactory = beanFactory;
+    public XmlBeanDefinitionReader(SimpleBeanFactory simpleBeanFactory) {
+        this.simpleBeanFactory = simpleBeanFactory;
     }
 
     public void loadBeanDefinitions(Resource resource) {
@@ -16,7 +17,7 @@ public class XmlBeanDefinitionReader {
             String beanName = element.attributeValue("id");
             String beanClass = element.attributeValue("class");
             BeanDefinition beanDefinition = new BeanDefinition(beanName, beanClass);
-            beanFactory.registerBeanDefinition(beanDefinition);
+            simpleBeanFactory.registerBeanDefinition(beanName, beanDefinition);
         }
     }
 }
