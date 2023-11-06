@@ -1,11 +1,14 @@
 package com.minis.beans.impl;
 
-import com.minis.beans.BeanDefinition;
-import com.minis.beans.BeanDefinitionRegistry;
-import com.minis.beans.BeanFactory;
+import com.minis.beans.*;
+import com.minis.enums.PropertyType;
 import com.minis.exceptions.BeansException;
+import com.minis.utils.StringUtils;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory, BeanDefinitionRegistry {
@@ -23,7 +26,7 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
                 bean = getSingleton(beanName);
                 if (bean == null) {
                     try {
-                        bean = Class.forName(beanDefinition.getClassName()).getDeclaredConstructor().newInstance();
+                        bean = createBean(beanDefinition);
                         registerSingleton(beanDefinition.getId(), bean);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -33,6 +36,63 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
         }
 
         return bean;
+    }
+
+    private Object createBean(BeanDefinition beanDefinition) {
+        Class<?> clazz;
+        Constructor<?> constructor;
+        Object obj;
+        // 构造
+        try {
+            clazz = Class.forName(beanDefinition.getClassName());
+            ArgumentValues CAVS = beanDefinition.getConstructorArgumentValues();
+            if (CAVS != null && !CAVS.isEmpty()) {
+                constructor = clazz.getDeclaredConstructor(CAVS.getArgumentTypes());
+                obj = constructor.newInstance(CAVS.getArgumentValues());
+            } else {
+                constructor = clazz.getDeclaredConstructor();
+                obj = constructor.newInstance();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(new BeansException(e.getMessage()));
+        }
+
+        // setter填充
+        handleProperties(beanDefinition, clazz, obj);
+
+        return obj;
+    }
+
+    private void handleProperties(BeanDefinition beanDefinition, Class<?> clazz, Object obj) {
+        PropertyValues propertyValues = beanDefinition.getPropertyValues();
+        if (propertyValues != null && !propertyValues.isEmpty()) {
+            for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
+                String methodName = "set" + StringUtils.upperFirstCase(propertyValue.getName());
+                Class<?> typeClazz;
+                Object concreteVal;
+
+                if (!propertyValue.isRef()) { // 非依赖引用
+                    typeClazz = PropertyType.getTypeClazz(propertyValue.getType());
+                    concreteVal = Objects.requireNonNull(PropertyType
+                            .getConcretePropertyType(propertyValue.getType()))
+                            .parseValue(propertyValue.getValue());
+                } else { // 依赖引用
+                    try {
+                        typeClazz = Class.forName(propertyValue.getType());
+                        concreteVal = getBean(propertyValue.getValue());
+                    } catch (Exception e) {
+                        throw new RuntimeException(new BeansException(e.getMessage()));
+                    }
+                }
+
+                try {
+                    Method declaredMethod = clazz.getDeclaredMethod(methodName, typeClazz);
+                    declaredMethod.invoke(obj, concreteVal);
+                } catch (Exception e) {
+                    throw new RuntimeException(new BeansException(e.getMessage()));
+                }
+            }
+        }
     }
 
     @Override

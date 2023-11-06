@@ -1,50 +1,48 @@
 package com.minis.beans;
 
-import java.util.*;
+import com.minis.enums.PropertyType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class ArgumentValues {
-    private final Map<Integer, ArgumentValue> indexedArgumentValues = new HashMap<>(0);
-    private final List<ArgumentValue> genericArgumentValues = new ArrayList<>();
+    private final List<ArgumentValue> argumentValueList = new ArrayList<>();
 
-    private void addArgumentValue(Integer key, ArgumentValue newValue) {
-        this.indexedArgumentValues.put(key, newValue);
+    public ArgumentValues() {
     }
 
-    public boolean hasIndexedArgumentValue(int index) {
-        return this.indexedArgumentValues.containsKey(index);
+    public void addArgumentValue(ArgumentValue argumentValue) {
+        this.argumentValueList.add(argumentValue);
     }
 
     public ArgumentValue getIndexedArgumentValue(int index) {
-        return this.indexedArgumentValues.get(index);
-    }
-
-    public void addGenericArgumentValue(Object value, String type) {
-        this.genericArgumentValues.add(new ArgumentValue(value, type));
-    }
-
-    private void addGenericArgumentValue(ArgumentValue newValue) {
-        if (newValue.getName() != null) {
-            this.genericArgumentValues.removeIf(currentValue -> newValue.getName().equals(currentValue.getName()));
-        }
-        this.genericArgumentValues.add(newValue);
-    }
-
-    public ArgumentValue getGenericArgumentValue(String requiredName) {
-        if (requiredName != null) {
-            for (ArgumentValue valueHolder : this.genericArgumentValues) {
-                if (requiredName.equals(valueHolder.getName())) {
-                    return valueHolder;
-                }
-            }
-        }
-        return null;
+        return this.argumentValueList.get(index);
     }
 
     public int getArgumentCount() {
-        return this.genericArgumentValues.size();
+        return (this.argumentValueList.size());
     }
 
     public boolean isEmpty() {
-        return this.genericArgumentValues.isEmpty();
+        return (this.argumentValueList.isEmpty());
+    }
+
+    public Class<?>[] getArgumentTypes() {
+        Class<?>[] clazzs = new Class<?>[getArgumentCount()];
+        for (int i = 0; i < getArgumentCount(); i ++) {
+            clazzs[i] = PropertyType.getTypeClazz(argumentValueList.get(i).getType());
+        }
+        return clazzs;
+    }
+
+    public Object[] getArgumentValues() {
+        Object[] objs = new Object[getArgumentCount()];
+        for (int i = 0; i < getArgumentCount(); i ++) {
+            ArgumentValue argumentValue = argumentValueList.get(i);
+            PropertyType concretePropertyType = PropertyType.getConcretePropertyType(argumentValue.getType());
+            objs[i] = Objects.requireNonNull(concretePropertyType).parseValue(argumentValue.getValue());
+        }
+        return objs;
     }
 }
