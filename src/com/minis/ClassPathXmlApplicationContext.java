@@ -13,10 +13,17 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
     private final BeanFactory beanFactory;
 
     public ClassPathXmlApplicationContext(String fileName) {
+        this(fileName, true);
+    }
+
+    public ClassPathXmlApplicationContext(String fileName, boolean isRefresh) {
         Resource resource = new ClassPathXmlResource(fileName);
         beanFactory = new SimpleBeanFactory();
         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((SimpleBeanFactory) beanFactory);
         reader.loadBeanDefinitions(resource);
+        if (isRefresh) {
+            ((SimpleBeanFactory) beanFactory).refresh();
+        }
     }
 
     @Override

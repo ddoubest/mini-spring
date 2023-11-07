@@ -8,8 +8,8 @@ public class BeanDefinition {
     private String className;
     // 表示 bean 是单例模式还是原型模式
     private String scope = SCOPE_SINGLETON;
-    // 表示 Bean 要不要在注册的时候初始化
-    private boolean lazyInit = false;
+    // 表示 Bean 是否懒加载，默认是。
+    private boolean lazyInit = true;
     // 初始化方法
     private String initMethodName;
     // 依赖的类

@@ -18,18 +18,29 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
     public Object getBean(String beanName) throws BeansException {
         Object bean = getSingleton(beanName);
         if (bean == null) {
-            if (!beanDefinitions.containsKey(beanName)) {
-                throw new BeansException("BeanDefinition not exist!");
-            }
-            BeanDefinition beanDefinition = beanDefinitions.get(beanName);
-            synchronized (beanDefinition) {
-                bean = getSingleton(beanName);
-                if (bean == null) {
-                    try {
-                        bean = createBean(beanDefinition);
-                        registerSingleton(beanDefinition.getId(), bean);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            // 尝试从缓存实例中取
+            bean = earlySingletonObjects.get(beanName);
+            if (bean == null) {
+                if (!beanDefinitions.containsKey(beanName)) {
+                    throw new BeansException("BeanDefinition not exist!");
+                }
+                BeanDefinition beanDefinition = beanDefinitions.get(beanName);
+                synchronized (beanDefinition) {
+                    bean = getSingleton(beanName);
+                    if (bean == null) {
+                        try {
+                            bean = createBean(beanDefinition);
+                            registerSingleton(beanDefinition.getId(), bean);
+                            // 删除缓存实例
+                            earlySingletonObjects.remove(beanName);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                        // 预留 beanpostprocessor 位置
+                        // step 1: postProcessBeforeInitialization
+                        // step 2: afterPropertiesSet
+                        // step 3: init-method
+                        // step 4: postProcessAfterInitialization
                     }
                 }
             }
@@ -39,31 +50,36 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
     }
 
     private Object createBean(BeanDefinition beanDefinition) {
-        Class<?> clazz;
-        Constructor<?> constructor;
-        Object obj;
         // 构造
+        Object obj = doCreateBean(beanDefinition);
+        // 存放入缓存实例中
+        earlySingletonObjects.put(beanDefinition.getId(), obj);
+        // setter填充
+        handleProperties(beanDefinition, obj);
+        return obj;
+    }
+
+    private Object doCreateBean(BeanDefinition beanDefinition) {
+        Object obj;
         try {
-            clazz = Class.forName(beanDefinition.getClassName());
+            Class<?> clazz = Class.forName(beanDefinition.getClassName());
             ArgumentValues CAVS = beanDefinition.getConstructorArgumentValues();
             if (CAVS != null && !CAVS.isEmpty()) {
-                constructor = clazz.getDeclaredConstructor(CAVS.getArgumentTypes());
+                Constructor<?> constructor = clazz.getDeclaredConstructor(CAVS.getArgumentTypes());
                 obj = constructor.newInstance(CAVS.getArgumentValues());
             } else {
-                constructor = clazz.getDeclaredConstructor();
+                Constructor<?> constructor = clazz.getDeclaredConstructor();
                 obj = constructor.newInstance();
             }
         } catch (Exception e) {
             throw new RuntimeException(new BeansException(e.getMessage()));
         }
-
-        // setter填充
-        handleProperties(beanDefinition, clazz, obj);
-
+        System.out.println(beanDefinition.getId() + " bean created. "
+                + beanDefinition.getClassName() + " : " + obj.toString());
         return obj;
     }
 
-    private void handleProperties(BeanDefinition beanDefinition, Class<?> clazz, Object obj) {
+    private void handleProperties(BeanDefinition beanDefinition, Object obj) {
         PropertyValues propertyValues = beanDefinition.getPropertyValues();
         if (propertyValues != null && !propertyValues.isEmpty()) {
             for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
@@ -86,11 +102,24 @@ public class SimpleBeanFactory extends DefaultSingletonBeanRegistry implements B
                 }
 
                 try {
-                    Method declaredMethod = clazz.getDeclaredMethod(methodName, typeClazz);
+                    Method declaredMethod = obj.getClass().getDeclaredMethod(methodName, typeClazz);
                     declaredMethod.invoke(obj, concreteVal);
                 } catch (Exception e) {
                     throw new RuntimeException(new BeansException(e.getMessage()));
                 }
+            }
+        }
+    }
+
+    /**
+     * 创建所有的 bean
+     */
+    public void refresh() {
+        for (String beanName : beanDefinitions.keySet()) {
+            try {
+                getBean(beanName);
+            } catch (BeansException e) {
+                throw new RuntimeException(e);
             }
         }
     }
