@@ -1,17 +1,19 @@
-package com.minis.beans;
+package com.minis.beans.factory.xml;
 
 
-import com.minis.beans.impl.SimpleBeanFactory;
+import com.minis.beans.Resource;
+import com.minis.beans.factory.config.*;
+import com.minis.beans.factory.support.AbstractBeanFactory;
 import org.dom4j.Element;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class XmlBeanDefinitionReader {
-    private final SimpleBeanFactory simpleBeanFactory;
+    private final AbstractBeanFactory beanFactory;
 
-    public XmlBeanDefinitionReader(SimpleBeanFactory simpleBeanFactory) {
-        this.simpleBeanFactory = simpleBeanFactory;
+    public XmlBeanDefinitionReader(AbstractBeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     public void loadBeanDefinitions(Resource resource) {
@@ -21,14 +23,21 @@ public class XmlBeanDefinitionReader {
             String beanClass = element.attributeValue("class");
             BeanDefinition beanDefinition = new BeanDefinition(beanName, beanClass);
 
+            // setBeanClass
+            try {
+                beanDefinition.setBeanClass(Class.forName(beanClass));
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
             // 构造器
             List<Element> argumentElements = element.elements("constructor-arg");
-            ArgumentValues AVS = new ArgumentValues();
+            ConstructorArgumentValues AVS = new ConstructorArgumentValues();
             for (Element argumentElement : argumentElements) {
                 String type = argumentElement.attributeValue("type");
                 String name = argumentElement.attributeValue("name");
                 String value = argumentElement.attributeValue("value");
-                AVS.addArgumentValue(new ArgumentValue(type, name, value));
+                AVS.addArgumentValue(new ConstructorArgumentValue(type, name, value));
             }
             beanDefinition.setConstructorArgumentValues(AVS);
 
@@ -54,7 +63,7 @@ public class XmlBeanDefinitionReader {
             // 依赖引用
             beanDefinition.setDependsOn(refs.toArray(new String[0]));
 
-            simpleBeanFactory.registerBeanDefinition(beanName, beanDefinition);
+            beanFactory.registerBeanDefinition(beanName, beanDefinition);
         }
     }
 }

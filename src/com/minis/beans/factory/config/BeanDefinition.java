@@ -1,4 +1,6 @@
-package com.minis.beans;
+package com.minis.beans.factory.config;
+
+import java.util.Arrays;
 
 public class BeanDefinition {
     public static final String SCOPE_SINGLETON = "singleton";
@@ -15,10 +17,10 @@ public class BeanDefinition {
     // 依赖的类
     private String[] dependsOn;
 
-    private ArgumentValues constructorArgumentValues;
+    private ConstructorArgumentValues constructorArgumentValues;
     private PropertyValues propertyValues;
 
-    private volatile Object beanClass;
+    private volatile Class<?> beanClass;
 
     public BeanDefinition(String id, String className) {
         this.id = id;
@@ -81,11 +83,11 @@ public class BeanDefinition {
         this.dependsOn = dependsOn;
     }
 
-    public ArgumentValues getConstructorArgumentValues() {
+    public ConstructorArgumentValues getConstructorArgumentValues() {
         return constructorArgumentValues;
     }
 
-    public void setConstructorArgumentValues(ArgumentValues constructorArgumentValues) {
+    public void setConstructorArgumentValues(ConstructorArgumentValues constructorArgumentValues) {
         this.constructorArgumentValues = constructorArgumentValues;
     }
 
@@ -97,11 +99,26 @@ public class BeanDefinition {
         this.propertyValues = propertyValues;
     }
 
-    public Object getBeanClass() {
+    public Class<?> getBeanClass() {
         return beanClass;
     }
 
-    public void setBeanClass(Object beanClass) {
+    public void setBeanClass(Class<?> beanClass) {
         this.beanClass = beanClass;
+    }
+
+    @Override
+    public String toString() {
+        return "BeanDefinition{" +
+                "id='" + id + '\'' +
+                ", className='" + className + '\'' +
+                ", scope='" + scope + '\'' +
+                ", lazyInit=" + lazyInit +
+                ", initMethodName='" + initMethodName + '\'' +
+                ", dependsOn=" + Arrays.toString(dependsOn) +
+                ", constructorArgumentValues=" + constructorArgumentValues +
+                ", propertyValues=" + propertyValues +
+                ", beanClass=" + beanClass +
+                '}';
     }
 }

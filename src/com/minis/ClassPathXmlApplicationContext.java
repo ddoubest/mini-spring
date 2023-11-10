@@ -1,16 +1,18 @@
 package com.minis;
 
-import com.minis.beans.BeanFactory;
+import com.minis.beans.ClassPathXmlResource;
 import com.minis.beans.Resource;
-import com.minis.beans.XmlBeanDefinitionReader;
-import com.minis.beans.impl.ClassPathXmlResource;
-import com.minis.beans.impl.SimpleBeanFactory;
+import com.minis.beans.factory.BeanFactory;
+import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import com.minis.beans.factory.support.AbstractBeanFactory;
+import com.minis.beans.factory.support.AutowireCapableBeanFactory;
+import com.minis.beans.factory.xml.XmlBeanDefinitionReader;
 import com.minis.event.ApplicationEvent;
 import com.minis.event.ApplicationEventPublisher;
 import com.minis.exceptions.BeansException;
 
 public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationEventPublisher {
-    private final BeanFactory beanFactory;
+    private final AbstractBeanFactory beanFactory;
 
     public ClassPathXmlApplicationContext(String fileName) {
         this(fileName, true);
@@ -18,11 +20,11 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
 
     public ClassPathXmlApplicationContext(String fileName, boolean isRefresh) {
         Resource resource = new ClassPathXmlResource(fileName);
-        beanFactory = new SimpleBeanFactory();
-        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader((SimpleBeanFactory) beanFactory);
+        beanFactory = new AutowireCapableBeanFactory();
+        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         reader.loadBeanDefinitions(resource);
         if (isRefresh) {
-            ((SimpleBeanFactory) beanFactory).refresh();
+            refresh();
         }
     }
 
@@ -32,7 +34,7 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
     }
 
     @Override
-    public Boolean containsBean(String  beanName) {
+    public Boolean containsBean(String beanName) {
         return beanFactory.containsBean(beanName);
     }
 
@@ -59,5 +61,18 @@ public class ClassPathXmlApplicationContext implements BeanFactory, ApplicationE
     @Override
     public void publishApplicationEvent(ApplicationEvent applicationEvent) {
 
+    }
+
+    public void refresh() {
+        registerBeanPostProcessors((AutowireCapableBeanFactory) beanFactory);
+        onRefresh();
+    }
+
+    private void registerBeanPostProcessors(AutowireCapableBeanFactory beanFactory) {
+        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+    }
+
+    private void onRefresh() {
+        beanFactory.refresh();
     }
 }

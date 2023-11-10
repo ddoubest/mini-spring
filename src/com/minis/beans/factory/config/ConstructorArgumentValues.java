@@ -1,4 +1,4 @@
-package com.minis.beans;
+package com.minis.beans.factory.config;
 
 import com.minis.enums.PropertyType;
 
@@ -6,17 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ArgumentValues {
-    private final List<ArgumentValue> argumentValueList = new ArrayList<>();
+public class ConstructorArgumentValues {
+    private final List<ConstructorArgumentValue> argumentValueList = new ArrayList<>();
 
-    public ArgumentValues() {
-    }
-
-    public void addArgumentValue(ArgumentValue argumentValue) {
+    public void addArgumentValue(ConstructorArgumentValue argumentValue) {
         this.argumentValueList.add(argumentValue);
     }
 
-    public ArgumentValue getIndexedArgumentValue(int index) {
+    public ConstructorArgumentValue getIndexedArgumentValue(int index) {
         return this.argumentValueList.get(index);
     }
 
@@ -39,7 +36,7 @@ public class ArgumentValues {
     public Object[] getArgumentValues() {
         Object[] objs = new Object[getArgumentCount()];
         for (int i = 0; i < getArgumentCount(); i ++) {
-            ArgumentValue argumentValue = argumentValueList.get(i);
+            ConstructorArgumentValue argumentValue = argumentValueList.get(i);
             PropertyType concretePropertyType = PropertyType.getConcretePropertyType(argumentValue.getType());
             objs[i] = Objects.requireNonNull(concretePropertyType).parseValue(argumentValue.getValue());
         }
