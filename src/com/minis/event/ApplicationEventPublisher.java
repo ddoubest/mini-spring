@@ -1,5 +1,6 @@
 package com.minis.event;
 
 public interface ApplicationEventPublisher {
-    void publishApplicationEvent(ApplicationEvent applicationEvent);
+    void publishEvent(ApplicationEvent event);
+    void addApplicationListener(ApplicationListener listener);
 }

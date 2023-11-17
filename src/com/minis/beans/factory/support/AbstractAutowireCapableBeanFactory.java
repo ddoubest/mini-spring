@@ -1,31 +1,34 @@
 package com.minis.beans.factory.support;
 
-import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import com.minis.beans.factory.AutowireCapableBeanFactory;
 import com.minis.exceptions.BeansException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutowireCapableBeanFactory extends AbstractBeanFactory {
-    private final List<AutowiredAnnotationBeanPostProcessor> beanPostProcessors = new ArrayList<>();
+public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
-    public void addBeanPostProcessor(AutowiredAnnotationBeanPostProcessor beanPostProcessor) {
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
         beanPostProcessors.remove(beanPostProcessor); // 保证不重复添加
         beanPostProcessors.add(beanPostProcessor);
     }
 
+    @Override
     public int getBeanPostProcessorCount() {
         return beanPostProcessors.size();
     }
 
-    public List<AutowiredAnnotationBeanPostProcessor> getBeanPostProcessors() {
+    @Override
+    public List<BeanPostProcessor> getBeanPostProcessors() {
         return beanPostProcessors;
     }
 
     @Override
     public Object applyBeanPostProcessorBeforeInitialization(Object existingBean, String beanName) throws BeansException {
         Object result = existingBean;
-        for (AutowiredAnnotationBeanPostProcessor beanPostProcessor : beanPostProcessors) {
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
             beanPostProcessor.setBeanFactory(this);
             Object processBean = beanPostProcessor.postProcessBeforeInitialization(existingBean, beanName);
             if (processBean != null) {
@@ -38,7 +41,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
     @Override
     public Object applyBeanPostProcessorAfterInitialization(Object existingBean, String beanName) throws BeansException {
         Object result = existingBean;
-        for (AutowiredAnnotationBeanPostProcessor beanPostProcessor : beanPostProcessors) {
+        for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
             beanPostProcessor.setBeanFactory(this);
             Object processBean = beanPostProcessor.postProcessAfterInitialization(existingBean, beanName);
             if (processBean != null) {

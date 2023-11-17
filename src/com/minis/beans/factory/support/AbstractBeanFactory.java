@@ -1,6 +1,6 @@
 package com.minis.beans.factory.support;
 
-import com.minis.beans.factory.BeanFactory;
+import com.minis.beans.factory.ConfigurableBeanFactory;
 import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
 import com.minis.beans.factory.config.PropertyValue;
@@ -16,8 +16,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory, BeanDefinitionRegistry {
-    private final Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory, BeanDefinitionRegistry {
+    protected final Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
 
     abstract public Object applyBeanPostProcessorBeforeInitialization(Object existingBean, String beanName) throws BeansException;
 
