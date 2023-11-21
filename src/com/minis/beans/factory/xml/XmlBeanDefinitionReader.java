@@ -1,7 +1,7 @@
 package com.minis.beans.factory.xml;
 
 
-import com.minis.beans.Resource;
+import com.minis.resources.Resource;
 import com.minis.beans.factory.config.*;
 import com.minis.beans.factory.support.AbstractBeanFactory;
 import org.dom4j.Element;

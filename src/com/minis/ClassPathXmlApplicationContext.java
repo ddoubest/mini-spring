@@ -1,7 +1,7 @@
 package com.minis;
 
-import com.minis.beans.ClassPathXmlResource;
-import com.minis.beans.Resource;
+import com.minis.resources.ClassPathXmlResource;
+import com.minis.resources.Resource;
 import com.minis.beans.factory.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;

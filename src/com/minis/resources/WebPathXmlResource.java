@@ -1,0 +1,44 @@
+package com.minis.resources;
+
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+
+import java.net.URL;
+import java.util.Iterator;
+
+public class WebPathXmlResource implements Resource {
+    private final Document document;
+    private final Element rootElement;
+    private final Iterator<Element> elementIterator;
+
+    public Document getDocument() {
+        return document;
+    }
+
+    public Element getRootElement() {
+        return rootElement;
+    }
+
+    @SuppressWarnings("unchecked")
+    public WebPathXmlResource(URL xmlPath) {
+        SAXReader reader = new SAXReader();
+        try {
+            this.document = reader.read(xmlPath);
+            this.rootElement = document.getRootElement();
+            this.elementIterator = rootElement.elementIterator();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean hasNext() {
+        return elementIterator.hasNext();
+    }
+
+    @Override
+    public Object next() {
+        return elementIterator.next();
+    }
+}
