@@ -1,7 +1,5 @@
-package com.minis;
+package com.minis.context;
 
-import com.minis.resources.ClassPathXmlResource;
-import com.minis.resources.Resource;
 import com.minis.beans.factory.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
@@ -9,6 +7,8 @@ import com.minis.beans.factory.xml.XmlBeanDefinitionReader;
 import com.minis.event.ApplicationListener;
 import com.minis.event.ContextRefreshEvent;
 import com.minis.event.SimpleApplicationEventPublisher;
+import com.minis.resources.ClassPathXmlResource;
+import com.minis.resources.Resource;
 
 public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     private final DefaultListableBeanFactory beanFactory;

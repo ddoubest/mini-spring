@@ -1,4 +1,4 @@
-package com.minis;
+package com.minis.context;
 
 import com.minis.beans.factory.ConfigurableBeanFactory;
 import com.minis.beans.factory.ConfigurableListableBeanFactory;

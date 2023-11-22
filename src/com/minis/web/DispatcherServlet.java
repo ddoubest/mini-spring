@@ -1,5 +1,8 @@
 package com.minis.web;
 
+import com.minis.exceptions.BeansException;
+import com.test.service.BaseService;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,9 +26,14 @@ public class DispatcherServlet extends HttpServlet {
     private final Map<String, Object> mappingObjs = new HashMap<>();
     private final Map<String, Method> mappingMethods = new HashMap<>();
 
+    private WebApplicationContext webApplicationContext;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+
+        this.webApplicationContext = (WebApplicationContext) this.getServletContext()
+                .getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
 
         String configLocation = config.getInitParameter("contextConfigLocation");
         URL xmlPath = null;
@@ -104,7 +112,7 @@ public class DispatcherServlet extends HttpServlet {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-                // 只要Controller注解的类
+                // 只要Component注解的类
                 if (!clazz.isAnnotationPresent(Controller.class)) {
                     continue;
                 }
@@ -132,6 +140,13 @@ public class DispatcherServlet extends HttpServlet {
             result = method.invoke(obj);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+
+        try {
+            BaseService baseService = (BaseService) webApplicationContext.getBean("baseservice");
+            baseService.sayHello();
+            resp.getWriter().println("baseService.sayHello()");
+        } catch (BeansException ignored) {
         }
 
         resp.getWriter().append(result.toString());

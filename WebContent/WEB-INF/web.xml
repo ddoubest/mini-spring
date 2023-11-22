@@ -16,4 +16,14 @@ http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID">
         <servlet-name>minisMVC</servlet-name>
         <url-pattern>/</url-pattern>
     </servlet-mapping>
+
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>applicationContext.xml</param-value>
+    </context-param>
+    <listener>
+        <listener-class>
+            com.minis.web.ContextLoaderListener
+        </listener-class>
+    </listener>
 </web-app>

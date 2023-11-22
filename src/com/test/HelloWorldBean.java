@@ -1,4 +1,4 @@
-package com.minis.test;
+package com.test;
 
 import com.minis.web.Controller;
 import com.minis.web.RequestMapping;

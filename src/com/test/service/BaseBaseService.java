@@ -1,4 +1,4 @@
-package com.minis.test;
+package com.test.service;
 
 public class BaseBaseService implements AService {
     private AService as;
