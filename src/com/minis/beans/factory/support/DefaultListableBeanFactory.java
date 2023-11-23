@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements ConfigurableListableBeanFactory {
+    private ConfigurableListableBeanFactory parentBeanFactory;
 
     @Override
     public void registerDependentBean(String beanName, String dependentBeanName) {
@@ -57,5 +58,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             }
         });
         return beans;
+    }
+
+    public void setParentBeanFactory(ConfigurableListableBeanFactory parentBeanFactory) {
+        this.parentBeanFactory = parentBeanFactory;
+    }
+
+    public ConfigurableListableBeanFactory getParentBeanFactory() {
+        return parentBeanFactory;
     }
 }

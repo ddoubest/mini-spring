@@ -34,7 +34,7 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         finishRefresh();
     }
 
-    void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+    protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
         beanFactoryPostProcessors.forEach(beanFactoryPostProcessor -> {
             try {
                 beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
@@ -44,15 +44,15 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
         });
     };
 
-    abstract void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory);
+    protected abstract void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory);
 
-    abstract void initApplicationEventPublisher();
+    protected abstract void initApplicationEventPublisher();
 
-    abstract void onRefresh();
+    protected abstract void onRefresh();
 
-    abstract void registerListeners();
+    protected abstract void registerListeners();
 
-    abstract void finishRefresh();
+    protected abstract void finishRefresh();
 
     @Override
     public String getApplicationName() {

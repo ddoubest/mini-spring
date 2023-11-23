@@ -28,28 +28,28 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
     }
 
     @Override
-    void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+    protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
         beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
     }
 
     @Override
-    void initApplicationEventPublisher() {
+    protected void initApplicationEventPublisher() {
         setApplicationEventPublisher(new SimpleApplicationEventPublisher());
     }
 
     @Override
-    void onRefresh() {
+    protected void onRefresh() {
         beanFactory.refresh();
     }
 
     @Override
-    void registerListeners() {
+    protected void registerListeners() {
         ApplicationListener applicationListener = new ApplicationListener();
         getApplicationEventPublisher().addApplicationListener(applicationListener);
     }
 
     @Override
-    void finishRefresh() {
+    protected void finishRefresh() {
         publishEvent(new ContextRefreshEvent("Context Refreshed..."));
     }
 
