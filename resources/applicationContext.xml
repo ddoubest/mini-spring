@@ -12,11 +12,18 @@
         <property type="com.test.service.BaseService" name="ref1" ref="baseservice"/>
     </bean>
 
-    <bean id="baseservice" class="com.test.service.BaseService">
+    <bean id="baseservice" class="com.test.service.BaseService" />
 
-    </bean>
+    <bean id="webBindingInitializer" class="com.test.DateInitializer" />
 
-    <bean id="webBindingInitializer" class="com.test.DateInitializer">
+    <bean id="handlerAdapter" class="com.minis.web.servlet.RequestMappingHandlerAdapter" />
 
+    <bean id="webBindingInitializer" class="com.test.DateInitializer" />
+
+    <bean id="messageConverter" class="com.minis.web.DefaultHttpMessageConverter" />
+
+    <bean id="objectMapper" class="com.minis.web.DefaultObjectMapper" >
+        <property type="String" name="dateFormat" value="yyyy/MM/dd"/>
+        <property type="String" name="decimalFormat" value="###.##"/>
     </bean>
 </beans>

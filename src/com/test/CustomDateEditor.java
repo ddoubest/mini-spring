@@ -36,7 +36,7 @@ public class CustomDateEditor implements PropertyEditor {
 
     @Override
     public void setFromText(String text) {
-        if (this.allowEmpty && !StringUtils.isEmpty(text)) {
+        if (this.allowEmpty && StringUtils.isEmpty(text)) {
             setValue(null);
         } else {
             LocalDate localdate = LocalDate.parse(text, datetimeFormatter);

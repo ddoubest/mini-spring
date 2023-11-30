@@ -2,20 +2,32 @@ package com.test;
 
 import com.minis.web.Controller;
 import com.minis.web.RequestMapping;
+import com.minis.web.ResponseBody;
 
 import java.util.Date;
 
 @Controller
 public class ParamController {
     @RequestMapping("/param")
-    public String getParam(Element element) { // /param?number=123123123123&text=hello&date=2023-11-30
-        return "Success:\n" + element.toString();
+    @ResponseBody
+    public Element getParam(Element element) { // /param?number=123123123123&text=hello&date=2023-11-30&rate=213.123&flag=false
+        return element;
     }
 
-    private static class Element {
+    public static class Element {
         private Long number;
         private String text;
         private Date date;
+        private double rate;
+        private Boolean flag;
+
+        public Boolean getFlag() {
+            return flag;
+        }
+
+        public void setFlag(Boolean flag) {
+            this.flag = flag;
+        }
 
         public Long getNumber() {
             return number;
@@ -47,7 +59,17 @@ public class ParamController {
                     "number=" + number +
                     ", text='" + text + '\'' +
                     ", date=" + date +
+                    ", rate=" + rate +
+                    ", flag=" + flag +
                     '}';
+        }
+
+        public double getRate() {
+            return rate;
+        }
+
+        public void setRate(double rate) {
+            this.rate = rate;
         }
     }
 }

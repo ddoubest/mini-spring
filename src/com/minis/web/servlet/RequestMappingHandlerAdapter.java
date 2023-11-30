@@ -1,30 +1,28 @@
 package com.minis.web.servlet;
 
-import com.minis.exceptions.BeansException;
-import com.minis.web.WebApplicationContext;
-import com.minis.web.WebBindingInitializer;
-import com.minis.web.WebDataBinder;
-import com.minis.web.WebDataBinderFactory;
+import com.minis.beans.factory.annotation.Autowired;
+import com.minis.web.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class RequestMappingHandlerAdapter implements HandlerAdapter{
-    private final WebApplicationContext webApplicationContext;
-    private final WebBindingInitializer webBindingInitializer;
+    private WebApplicationContext webApplicationContext;
+    @Autowired
+    private WebBindingInitializer webBindingInitializer;
+    @Autowired
+    private HttpMessageConverter messageConverter;
+
+    public RequestMappingHandlerAdapter() {
+    }
 
     public RequestMappingHandlerAdapter(WebApplicationContext webApplicationContext) {
         this.webApplicationContext = webApplicationContext;
-        try {
-            this.webBindingInitializer =
-                    (WebBindingInitializer) webApplicationContext.getBean("webBindingInitializer");
-        } catch (BeansException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -42,7 +40,8 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter{
 
     private void invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
         WebDataBinderFactory webDataBinderFactory = new WebDataBinderFactory();
-        Parameter[] methodParameters = handler.getMethod().getParameters();
+        Method invokeMethod = handler.getMethod();
+        Parameter[] methodParameters = invokeMethod.getParameters();
         Object[] methodParamObjs = new Object[methodParameters.length];
         int idx = 0;
         for (Parameter methodParameter : methodParameters) {
@@ -54,7 +53,29 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter{
             binder.bind(request);
             methodParamObjs[idx] = methodParamObj;
         }
-        Object result = handler.getMethod().invoke(handler.getBean(), methodParamObjs);
-        response.getWriter().append(result.toString());
+
+        Object result = invokeMethod.invoke(handler.getBean(), methodParamObjs);
+        if (invokeMethod.isAnnotationPresent(ResponseBody.class)) {
+            this.messageConverter.write(result, response);
+        } else {
+            response.getWriter().append(result.toString());
+            response.flushBuffer();
+        }
+    }
+
+    public WebBindingInitializer getWebBindingInitializer() {
+        return webBindingInitializer;
+    }
+
+    public void setWebBindingInitializer(WebBindingInitializer webBindingInitializer) {
+        this.webBindingInitializer = webBindingInitializer;
+    }
+
+    public HttpMessageConverter getMessageConverter() {
+        return messageConverter;
+    }
+
+    public void setMessageConverter(HttpMessageConverter messageConverter) {
+        this.messageConverter = messageConverter;
     }
 }

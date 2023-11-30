@@ -10,5 +10,7 @@ public class DateInitializer implements WebBindingInitializer {
     public void initBinder(WebDataBinder binder) {
         binder.registerCustomEditor(Date.class,
                 new CustomDateEditor(Date.class, "yyyy-MM-dd", false));
+        binder.registerCustomEditor(Boolean.class, new CustomBoolEditor());
+        binder.registerCustomEditor(boolean.class, new CustomBoolEditor());
     }
 }
