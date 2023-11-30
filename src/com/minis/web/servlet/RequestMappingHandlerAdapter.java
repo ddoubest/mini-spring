@@ -26,19 +26,19 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter{
     }
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        handleInternal(request, response, (HandlerMethod) handler);
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        return handleInternal(request, response, (HandlerMethod) handler);
     }
 
-    private void handleInternal(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) {
+    private ModelAndView handleInternal(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) {
         try {
-            invokeHandlerMethod(request, response, handler);
+            return invokeHandlerMethod(request, response, handler);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+    private ModelAndView invokeHandlerMethod(HttpServletRequest request, HttpServletResponse response, HandlerMethod handler) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
         WebDataBinderFactory webDataBinderFactory = new WebDataBinderFactory();
         Method invokeMethod = handler.getMethod();
         Parameter[] methodParameters = invokeMethod.getParameters();
@@ -55,12 +55,19 @@ public class RequestMappingHandlerAdapter implements HandlerAdapter{
         }
 
         Object result = invokeMethod.invoke(handler.getBean(), methodParamObjs);
+
+        ModelAndView modelAndView = null;
         if (invokeMethod.isAnnotationPresent(ResponseBody.class)) {
             this.messageConverter.write(result, response);
         } else {
-            response.getWriter().append(result.toString());
-            response.flushBuffer();
+            if (result instanceof ModelAndView) {
+                return (ModelAndView) result;
+            } else if (result instanceof String) {
+                modelAndView = new ModelAndView((String) result);
+            }
         }
+
+        return modelAndView;
     }
 
     public WebBindingInitializer getWebBindingInitializer() {
