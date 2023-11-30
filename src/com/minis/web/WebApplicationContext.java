@@ -9,4 +9,6 @@ public interface WebApplicationContext extends ApplicationContext {
 
     ServletContext getServletContext();
     void setServletContext(ServletContext servletContext);
+
+    WebApplicationContext getParent();
 }

@@ -124,6 +124,11 @@ public class AnnotationConfigWebApplicationContext extends AbstractApplicationCo
     }
 
     @Override
+    public WebApplicationContext getParent() {
+        return parentWebApplicationContext;
+    }
+
+    @Override
     public ConfigurableListableBeanFactory getBeanFactory() throws IllegalStateException {
         return beanFactory;
     }

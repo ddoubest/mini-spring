@@ -20,4 +20,9 @@ public class XmlWebApplicationContext extends ClassPathXmlApplicationContext imp
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
     }
+
+    @Override
+    public WebApplicationContext getParent() {
+        return null;
+    }
 }

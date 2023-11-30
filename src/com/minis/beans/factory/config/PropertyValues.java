@@ -2,9 +2,20 @@ package com.minis.beans.factory.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PropertyValues {
+    public PropertyValues() {
+    }
+
     private final List<PropertyValue> propertyValueList = new ArrayList<>();
+
+    public PropertyValues(Map<String, String> map) {
+        map.forEach((k, v) -> {
+            PropertyValue propertyValue = new PropertyValue(null, k, v, false);
+            this.addPropertyValue(propertyValue);
+        });
+    }
 
     public List<PropertyValue> getPropertyValueList() {
         return this.propertyValueList;

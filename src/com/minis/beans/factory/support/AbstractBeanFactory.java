@@ -28,7 +28,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             bean = earlySingletonObjects.get(beanName);
             if (bean == null) {
                 if (!beanDefinitions.containsKey(beanName)) {
-                    throw new BeansException("BeanDefinition not exist!");
+                    // throw new BeansException("BeanDefinition not exist!");
+                    return null;
                 }
                 BeanDefinition beanDefinition = beanDefinitions.get(beanName);
                 synchronized (beanDefinition) {
