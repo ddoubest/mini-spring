@@ -2,23 +2,18 @@ package com.minis.web;
 
 import com.minis.beans.factory.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.context.AbstractApplicationContext;
 import com.minis.event.ApplicationListener;
 import com.minis.event.ContextRefreshEvent;
 import com.minis.event.SimpleApplicationEventPublisher;
 import com.minis.exceptions.BeansException;
+import com.minis.utils.ScanComponentHelper;
 
 import javax.servlet.ServletContext;
-import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class AnnotationConfigWebApplicationContext extends AbstractApplicationContext implements WebApplicationContext {
     private final DefaultListableBeanFactory beanFactory;
@@ -42,8 +37,8 @@ public class AnnotationConfigWebApplicationContext extends AbstractApplicationCo
             throw new RuntimeException(e);
         }
         List<String> packageNames = XmlScanComponentHelper.getNodeValue(xmlPath);
-        List<String> controllerNames = scanPackages(packageNames);
-        loadBeanDefinitions(controllerNames);
+        List<String> controllerNames = ScanComponentHelper.scanPackages(packageNames);
+        ScanComponentHelper.loadBeanDefinitions(beanFactory, controllerNames);
         refresh();
     }
 
@@ -53,54 +48,6 @@ public class AnnotationConfigWebApplicationContext extends AbstractApplicationCo
         if (result == null) {
             result = parentWebApplicationContext.getBean(beanName);
         }
-        return result;
-    }
-
-    private void loadBeanDefinitions(List<String> controllerNames) {
-        for (String controllerName : controllerNames) {
-            BeanDefinition beanDefinition = new BeanDefinition(controllerName, controllerName);
-            beanFactory.registerBeanDefinition(controllerName, beanDefinition);
-        }
-    }
-
-    private List<String> scanPackages(List<String> packageNames) {
-        List<String> result = new ArrayList<>();
-        for (String packageName : packageNames) {
-            result.addAll(Objects.requireNonNull(scanPackage(packageName)));
-        }
-        return result;
-    }
-
-    private List<String> scanPackage(String packageName) {
-        List<String> result = new ArrayList<>();
-
-        String relativePath = packageName.replace(".", "/");
-        URI packagePath;
-        try {
-            packagePath = this.getClass().getResource("/" + relativePath).toURI();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        File dir = new File(packagePath);
-        for (File file : Objects.requireNonNull(dir.listFiles())) {
-            if (file.isDirectory()) {
-                result.addAll(scanPackage(packageName + "." + file.getName()));
-            } else {
-                String controllerName = packageName + "." + file.getName().replace(".class", "");
-                Class<?> clazz = null;
-                try {
-                    clazz = Class.forName(controllerName);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                // 只要Component注解的类
-                if (!clazz.isAnnotationPresent(Controller.class)) {
-                    continue;
-                }
-                result.add(controllerName);
-            }
-        }
-
         return result;
     }
 
