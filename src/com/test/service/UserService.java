@@ -7,6 +7,7 @@ import com.test.entity.User;
 
 import java.sql.ResultSet;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class UserService {
@@ -45,5 +46,16 @@ public class UserService {
             return rtnUser;
         }, userId);
         return (User) user;
+    }
+
+    public List<User> getUsers(int userId) {
+        String sql = "select id,name,birthday from user where id=?";
+        return jdbcTemplate.query(sql, (resultSet, rowIdx) -> {
+            User rtnUser = new User();
+            rtnUser.setId(resultSet.getInt("id"));
+            rtnUser.setName(resultSet.getString("name"));
+            rtnUser.setBirthday(new Date(resultSet.getTimestamp("birthday").getTime()));
+            return rtnUser;
+        }, userId);
     }
 }
