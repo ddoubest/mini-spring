@@ -40,4 +40,8 @@
     </bean>
 
     <bean id="jdbcTemplate" class="com.minis.jdbc.core.JdbcTemplate" />
+
+    <bean id="sqlSessionFactory" class="com.minis.batis.DefaultSqlSessionFactory" init-method="init">
+        <property type="String" name="mapperLocations" value="mapper" />
+    </bean>
 </beans>

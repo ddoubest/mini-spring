@@ -1,5 +1,7 @@
 package com.test.service;
 
+import com.minis.batis.SqlSession;
+import com.minis.batis.SqlSessionFactory;
 import com.minis.beans.factory.annotation.Autowired;
 import com.minis.core.Component;
 import com.minis.jdbc.core.JdbcTemplate;
@@ -13,6 +15,9 @@ import java.util.List;
 public class UserService {
     @Autowired
     JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    SqlSessionFactory sqlSessionFactory;
 
     public User getUserInfo(int userId) {
         String sql = "select id,name,birthday from user where id=" + userId;
@@ -57,5 +62,22 @@ public class UserService {
             rtnUser.setBirthday(new Date(resultSet.getTimestamp("birthday").getTime()));
             return rtnUser;
         }, userId);
+    }
+
+    public User getUserInfoBySqlSession(int userId) {
+        String sqlId = "com.test.entity.User.getUserInfo";
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        return (User) sqlSession.selectOne(sqlId, preparedStatement -> {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            User rtnUser = null;
+            if (resultSet.next()) {
+                rtnUser = new User();
+                rtnUser.setId(resultSet.getInt("id"));
+                rtnUser.setName(resultSet.getString("name"));
+                rtnUser.setBirthday(new Date(resultSet.getTimestamp("birthday").getTime()));
+            }
+            resultSet.close();
+            return rtnUser;
+        },userId);
     }
 }
