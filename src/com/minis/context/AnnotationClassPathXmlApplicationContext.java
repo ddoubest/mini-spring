@@ -34,7 +34,9 @@ public class AnnotationClassPathXmlApplicationContext extends AbstractApplicatio
 
     @Override
     protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+        AutowiredAnnotationBeanPostProcessor beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
+        beanPostProcessor.setBeanFactory(this);
+        beanFactory.addBeanPostProcessor(beanPostProcessor);
     }
 
     @Override

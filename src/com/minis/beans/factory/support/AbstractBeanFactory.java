@@ -2,6 +2,7 @@ package com.minis.beans.factory.support;
 
 import com.minis.beans.factory.AutowireCapableBeanFactory;
 import com.minis.beans.factory.ConfigurableBeanFactory;
+import com.minis.beans.factory.FactoryBean;
 import com.minis.beans.factory.config.BeanDefinition;
 import com.minis.beans.factory.config.ConstructorArgumentValues;
 import com.minis.beans.factory.config.PropertyValue;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory, BeanDefinitionRegistry, AutowireCapableBeanFactory {
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory, BeanDefinitionRegistry, AutowireCapableBeanFactory {
     protected final Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
 
     @Override
@@ -58,7 +59,20 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             }
         }
 
+        if (bean instanceof FactoryBean) {
+            bean = this.getObjectForBeanInstance(bean, beanName);
+        }
+
         return bean;
+    }
+
+    protected Object getObjectForBeanInstance(Object beanInstance, String beanName) {
+        if (!(beanInstance instanceof FactoryBean)) {
+            return beanInstance;
+        }
+        FactoryBean<?> factoryBean = (FactoryBean<?>) beanInstance;
+        return getObjectFromFactoryBean(factoryBean, beanName);
+
     }
 
     private Object createBean(BeanDefinition beanDefinition) {

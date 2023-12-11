@@ -29,7 +29,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     public Object applyBeanPostProcessorBeforeInitialization(Object existingBean, String beanName) throws BeansException {
         Object result = existingBean;
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-            beanPostProcessor.setBeanFactory(this);
+            if (beanPostProcessor.getBeanFactory() == null) {
+                beanPostProcessor.setBeanFactory(this);
+            }
             Object processBean = beanPostProcessor.postProcessBeforeInitialization(existingBean, beanName);
             if (processBean != null) {
                 result = processBean;
@@ -42,7 +44,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     public Object applyBeanPostProcessorAfterInitialization(Object existingBean, String beanName) throws BeansException {
         Object result = existingBean;
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-            beanPostProcessor.setBeanFactory(this);
+            if (beanPostProcessor.getBeanFactory() == null) {
+                beanPostProcessor.setBeanFactory(this);
+            }
             Object processBean = beanPostProcessor.postProcessAfterInitialization(existingBean, beanName);
             if (processBean != null) {
                 result = processBean;

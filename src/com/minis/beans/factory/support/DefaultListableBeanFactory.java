@@ -67,4 +67,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public ConfigurableListableBeanFactory getParentBeanFactory() {
         return parentBeanFactory;
     }
+
+    @Override
+    protected Object postProcessObjectFromFactoryBean(Object object, String beanName) throws BeansException {
+        return object;
+    }
 }

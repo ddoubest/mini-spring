@@ -42,6 +42,12 @@
     <bean id="jdbcTemplate" class="com.minis.jdbc.core.JdbcTemplate" />
 
     <bean id="sqlSessionFactory" class="com.minis.batis.DefaultSqlSessionFactory" init-method="init">
-        <property type="String" name="mapperLocations" value="mapper" />
+        <property type="String" name="mapperLocation" value="mapper" />
+    </bean>
+
+    <bean id="realAction" class="com.test.service.ActionImpl" />
+
+    <bean id="action" class="com.minis.aop.ProxyFactoryBean" >
+        <property type="java.lang.Object" name="target" ref="realAction"/>
     </bean>
 </beans>
