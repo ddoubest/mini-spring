@@ -47,7 +47,16 @@
 
     <bean id="realAction" class="com.test.service.ActionImpl" />
 
+    <bean id="myInterceptor" class="com.minis.aop.AfterReturningAdviceInterceptor">
+        <property type="com.minis.aop.AfterReturningAdvice"  name="advice" ref="myAfterAdvice" />
+    </bean>
+
+    <bean id="myBeforeAdvice" class="com.test.service.MyBeforeAdvice" />
+
+    <bean id="myAfterAdvice" class="com.test.service.MyAfterAdvice" />
+
     <bean id="action" class="com.minis.aop.ProxyFactoryBean" >
         <property type="java.lang.Object" name="target" ref="realAction"/>
+        <property type="String" name="interceptorName" value="myInterceptor"/>
     </bean>
 </beans>

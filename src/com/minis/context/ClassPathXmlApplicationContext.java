@@ -1,6 +1,7 @@
 package com.minis.context;
 
 import com.minis.beans.factory.ConfigurableListableBeanFactory;
+import com.minis.beans.factory.FactoryAwareBeanPostProcessor;
 import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.beans.factory.xml.XmlBeanDefinitionReader;
@@ -29,9 +30,8 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
 
     @Override
     protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        AutowiredAnnotationBeanPostProcessor beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
-        beanPostProcessor.setBeanFactory(this);
-        beanFactory.addBeanPostProcessor(beanPostProcessor);
+        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor(this));
+        beanFactory.addBeanPostProcessor(new FactoryAwareBeanPostProcessor(this));
     }
 
     @Override

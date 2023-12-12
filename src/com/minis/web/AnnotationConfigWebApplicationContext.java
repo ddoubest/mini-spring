@@ -1,6 +1,7 @@
 package com.minis.web;
 
 import com.minis.beans.factory.ConfigurableListableBeanFactory;
+import com.minis.beans.factory.FactoryAwareBeanPostProcessor;
 import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.context.AbstractApplicationContext;
@@ -82,9 +83,8 @@ public class AnnotationConfigWebApplicationContext extends AbstractApplicationCo
 
     @Override
     protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        AutowiredAnnotationBeanPostProcessor beanPostProcessor = new AutowiredAnnotationBeanPostProcessor();
-        beanPostProcessor.setBeanFactory(this);
-        beanFactory.addBeanPostProcessor(beanPostProcessor);
+        beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor(this));
+        beanFactory.addBeanPostProcessor(new FactoryAwareBeanPostProcessor(this));
     }
 
     @Override
