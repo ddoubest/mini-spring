@@ -18,10 +18,21 @@ public class HelloWorldBean {
     }
 
     @RequestMapping("/testaop")
+    public void doTestAopp() {
+        action.doAction();
+    }
+
+    @RequestMapping("/testaop")
     @ResponseBody
     public String doTestAop() {
         action.doAction();
         return "test aop, hello world!";
+    }
+
+
+    @RequestMapping("/testaop2")
+    public void doTestAop2() {
+        action.doSomething();
     }
 
 }

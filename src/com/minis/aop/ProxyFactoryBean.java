@@ -24,7 +24,8 @@ public class ProxyFactoryBean implements FactoryBean<Object>, BeanFactoryAware {
 
     private void initializeAdvisor() {
         try {
-            MethodInterceptor methodInterceptor = (MethodInterceptor) this.beanFactory.getBean(interceptorName);
+            MethodInterceptor methodInterceptor =
+                    (MethodInterceptor) this.beanFactory.getBean(interceptorName);
             this.advisor = new DefaultAdvisor();
             this.advisor.setMethodInterceptor(methodInterceptor);
         } catch (BeansException e) {

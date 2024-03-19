@@ -55,8 +55,14 @@
 
     <bean id="myAfterAdvice" class="com.test.service.MyAfterAdvice" />
 
+    <bean id="myAdvisor" class="com.minis.aop.NameMatchMethodPointcutAdvisor">
+        <property type="com.minis.aop.Advice" name="advice" ref="myBeforeAdvice"/>
+        <property type="String" name="mappedName" value="do*"/>
+    </bean>
+
     <bean id="action" class="com.minis.aop.ProxyFactoryBean" >
         <property type="java.lang.Object" name="target" ref="realAction"/>
-        <property type="String" name="interceptorName" value="myInterceptor"/>
+        <property type="com.minis.aop.Advisor" name="advisor" ref="myAdvisor"/>
+<!--        <property type="String" name="interceptorName" value="myInterceptor"/>-->
     </bean>
 </beans>
