@@ -9,10 +9,7 @@ public class NameMatchMethodPointcut implements MethodMatcher, PointCut {
 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
-        if (mappedName.equals(method.getName()) || isMatch(method.getName(), mappedName)) {
-            return true;
-        }
-        return false;
+        return mappedName.equals(method.getName()) || isMatch(method.getName(), mappedName);
     }
 
     private boolean isMatch(String methodName, String mappedName) {

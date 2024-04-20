@@ -46,7 +46,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         }
                         // 预留 beanpostprocessor 位置
                         // step 1: postProcessBeforeInitialization
-                        applyBeanPostProcessorBeforeInitialization(bean, beanName);
+                        bean = applyBeanPostProcessorBeforeInitialization(bean, beanName);
                         // step 2: afterPropertiesSet
                         // step 3: init-method
                         if (!StringUtils.isEmpty(beanDefinition.getInitMethodName())) {
@@ -54,6 +54,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
                         }
                         // step 4: postProcessAfterInitialization
                         applyBeanPostProcessorAfterInitialization(bean, beanName);
+                        this.removeSingleton(beanName);
+                        this.registerBean(beanName, bean);
                     }
                 }
             }

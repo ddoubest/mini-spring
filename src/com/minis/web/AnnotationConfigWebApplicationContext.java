@@ -3,6 +3,7 @@ package com.minis.web;
 import com.minis.beans.factory.ConfigurableListableBeanFactory;
 import com.minis.beans.factory.FactoryAwareBeanPostProcessor;
 import com.minis.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import com.minis.beans.factory.support.BeanPostProcessor;
 import com.minis.beans.factory.support.DefaultListableBeanFactory;
 import com.minis.context.AbstractApplicationContext;
 import com.minis.event.ApplicationListener;
@@ -85,6 +86,11 @@ public class AnnotationConfigWebApplicationContext extends AbstractApplicationCo
     protected void registerBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
         beanFactory.addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor(this));
         beanFactory.addBeanPostProcessor(new FactoryAwareBeanPostProcessor(this));
+        try {
+            beanFactory.addBeanPostProcessor((BeanPostProcessor) this.getBean("autoProxyCreator"));
+        } catch (BeansException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

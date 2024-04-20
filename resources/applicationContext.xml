@@ -60,9 +60,14 @@
         <property type="String" name="mappedName" value="do*"/>
     </bean>
 
-    <bean id="action" class="com.minis.aop.ProxyFactoryBean" >
-        <property type="java.lang.Object" name="target" ref="realAction"/>
-        <property type="com.minis.aop.Advisor" name="advisor" ref="myAdvisor"/>
-<!--        <property type="String" name="interceptorName" value="myInterceptor"/>-->
+<!--    <bean id="action" class="com.minis.aop.ProxyFactoryBean" >-->
+<!--        <property type="java.lang.Object" name="target" ref="realAction"/>-->
+<!--        <property type="com.minis.aop.Advisor" name="advisor" ref="myAdvisor"/>-->
+<!--        &lt;!&ndash; <property type="String" name="interceptorName" value="myInterceptor"/> &ndash;&gt;-->
+<!--    </bean>-->
+
+    <bean id="autoProxyCreator" class="com.minis.aop.autoproxy.BeanNameAutoProxyCreator" >
+        <property type="String" name="pattern" value="action*" />
+        <property type="com.minis.aop.PointCutAdvisor" name="advisor" ref="myAdvisor"/>
     </bean>
 </beans>

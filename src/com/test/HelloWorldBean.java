@@ -29,10 +29,27 @@ public class HelloWorldBean {
         return "test aop, hello world!";
     }
 
-
     @RequestMapping("/testaop2")
     public void doTestAop2() {
         action.doSomething();
     }
 
+
+    @Autowired
+    private Action action1;
+
+    @RequestMapping("/testaop3")
+    public void doTestAop3() {
+        action1.doAction();
+        action1.doSomething();
+    }
+
+    @Autowired
+    private Action action2;
+
+    @RequestMapping("/testaop4")
+    public void doTestAop4() {
+        action2.doAction();
+        action2.doSomething();
+    }
 }
